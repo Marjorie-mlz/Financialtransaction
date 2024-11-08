@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <!-- 引入 Bootstrap CSS 文件 -->
+    <link rel="stylesheet" href="./css/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+    <!-- 设置 CSP -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://cdn.jsdelivr.net; object-src 'none'; base-uri 'self';">
+    <style>
+        /* 自定义样式 */
+        body {
+            background-color: #f0f0f0; /* 浅灰色背景 */
+        }
+
+        h1 {
+            color: #003366; /* 深蓝色标题字体 */
+            font-weight: bold;
+            font-size: 2.5rem; /* 增大标题字体 */
+        }
+
+        .card {
+            max-width: 500px; /* 增加登录框的宽度 */
+            border-radius: 10px; /* 圆角 */
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+        }
+
+        .form-label {
+            color: #003366; /* 深蓝色标签字体 */
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: #003366; /* 按钮深蓝色背景 */
+            border: none;
+            font-size: 1.1rem; /* 增大按钮字体 */
+        }
+
+        .btn-primary:hover {
+            background-color: #002244; /* 悬停时更深的蓝色 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center my-5">User Login</h1>
+        <div class="card p-5 mx-auto">
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="email" class="form-label">Email:</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" id="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-2">Login</button>
+                <p id="error-message" class="text-danger text-center mt-3"></p> <!-- 错误信息显示位置 -->
+            </form>
+        </div>
+    </div>
+
+    <!-- 引入 app.js 文件 -->
+    <script src="app.js"></script>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function (event) {
+            event.preventDefault(); // 阻止表单的默认提交行为
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+
+            try {
+                const response = await fetch('http://localhost:8080/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // 保存 JWT 令牌并跳转到仪表盘页面
+                    localStorage.setItem('token', result.token);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    // 显示错误信息
+                    errorMessage.textContent = result.error || 'Login failed. Please try again.';
+                }
+            } catch (error) {
+                // 处理网络或其他异常
+                errorMessage.textContent = 'An error occurred. Please try again later.';
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
